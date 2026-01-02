@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rádio com Anúncios Automáticos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0c2461 0%, #1e3799 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #fad390, #fa983a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .highlight {
+            color: #fad390;
+            font-weight: bold;
+        }
+        
+        .warning {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 8px 15px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .player-section, .ads-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #fad390;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .section-title i {
+            font-size: 1.3rem;
+        }
+        
+        .player {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .player-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .control-btn {
+            background: linear-gradient(to right, #fa983a, #e58e26);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .control-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .control-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .control-btn.play-pause {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            height: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #fa983a, #e58e26);
+            height: 100%;
+            width: 0%;
+            border-radius: 5px;
+            transition: width 0.1s;
+        }
+        
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #ddd;
+            margin-top: 5px;
+        }
+        
+        .track-info {
+            margin-top: 15px;
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid #fa983a;
+        }
+        
+        .track-title {
+            font-size: 1.2rem;
+            color: #fad390;
+            margin-bottom: 5px;
+        }
+        
+        .track-artist {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .volume-control i {
+            color: #fa983a;
+            font-size: 1.2rem;
+        }
+        
+        input[type="range"] {
+            flex-grow: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #fa983a;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .playlist {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+            margin-top: 15px;
+        }
+        
+        .playlist-item {
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid transparent;
+        }
+        
+        .playlist-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .playlist-item.active {
+            background: rgba(250, 152, 58, 0.2);
+            border-left: 4px solid #fa983a;
+        }
+        
+        .playlist-item i {
+            color: #fa983a;
+        }
+        
+        .ads-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .ad-info {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .ad-timer {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #fa983a;
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(250, 152, 58, 0.3);
+        }
+        
+        .ad-status {
+            font-size: 1.1rem;
+            color: #ddd;
+            margin-top: 10px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .ad-playing {
+            background: rgba(250, 152, 58, 0.2);
+            color: #fa983a;
+        }
+        
+        .ad-upcoming {
+            background: rgba(250, 211, 144, 0.2);
+            color: #fad390;
+        }
+        
+        .ad-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .ad-btn {
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .ad-btn:hover {
+            background: rgba(250, 152, 58, 0.5);
+        }
+        
+        .ad-list {
+            margin-top: 20px;
+        }
+        
+        .ad-item {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .ad-item.active {
+            background: rgba(250, 152, 58, 0.2);
+            border-left: 3px solid #fa983a;
+        }
+        
+        .ad-item i {
+            color: #fa983a;
+        }
+        
+        .auto-play-info {
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .auto-play-info i {
+            color: #2ecc71;
+            margin-right: 8px;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(to right, #fa983a, #e58e26);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: all 0.5s ease;
+            z-index: 100;
+            text-align: center;
+            min-width: 300px;
+            max-width: 90%;
+        }
+        
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .notification i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .ad-badge {
+            background: #fa983a;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(250, 152, 58, 0.5);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(250, 152, 58, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-music"></i> Rádio Zebu</h1>
+            <p class="subtitle">Música toca, anúncio interrompe, música retoma automaticamente <span class="highlight">a cada 10 minutos</span></p>
+            <div class="warning">
+                <i class="fas fa-info-circle"></i> Anúncio toca automaticamente e a música retorna sozinha após o anúncio
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <section class="player-section">
+                <h2 class="section-title"><i class="fas fa-play-circle"></i> Player de Música</h2>
+                
+                <div class="player">
+                    <div class="player-controls">
+                        <button class="control-btn prev-btn" title="Música anterior">
+                            <i class="fas fa-step-backward"></i>
+                        </button>
+                        <button class="control-btn play-pause" title="Play/Pause">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="control-btn next-btn" title="Próxima música">
+                            <i class="fas fa-step-forward"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="progress-container" id="progress-container">
+                        <div class="progress-bar" id="progress-bar"></div>
+                    </div>
+                    
+                    <div class="time-info">
+                        <span class="current-time-display" id="current-time">0:00</span>
+                        <span class="total-time-display" id="total-time">0:00</span>
+                    </div>
+                    
+                    <div class="track-info">
+                        <div class="track-title" id="track-title">Nenhuma música selecionada</div>
+                        <div class="track-artist" id="track-artist">Clique em uma música da playlist para começar</div>
+                    </div>
+                    
+                    <div class="volume-control">
+                        <i class="fas fa-volume-up" id="volume-icon"></i>
+                        <input type="range" id="volume-slider" min="0" max="100" value="70">
+                    </div>
+                    
+                    <div class="auto-play-info">
+                        <i class="fas fa-robot"></i> Modo automático ativado: música retorna automaticamente após cada anúncio
+                    </div>
+                    
+                    <div class="playlist" id="playlist">
+                        <!-- As músicas serão adicionadas via JavaScript -->
+                    </div>
+                </div>
+            </section>
+            
+            <section class="ads-section">
+                <h2 class="section-title"><i class="fas fa-ad"></i> Sistema de Anúncios</h2>
+                
+                <div class="ads-container">
+                    <div class="ad-info">
+                        <div>Próximo anúncio automático em:</div>
+                        <div class="ad-timer" id="ad-timer">08:00</div>
+                        <div class="ad-status ad-upcoming" id="ad-status">Aguardando próximo anúncio</div>
+                        
+                        <div class="ad-controls">
+                            <button class="ad-btn" id="test-ad-btn">
+                                <i class="fas fa-bullhorn"></i> Testar Anúncio Agora
+                            </button>
+                            <button class="ad-btn" id="skip-ad-btn" style="display: none;">
+                                <i class="fas fa-forward"></i> Pular Anúncio
+                            </button>
+                            <button class="ad-btn" id="stop-ads-btn">
+                                <i class="fas fa-stop-circle"></i> Parar Anúncios
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="ad-list">
+                        <h3 style="margin-bottom: 15px; color: #fad390;">
+                            <i class="fas fa-list"></i> Anúncios Disponíveis
+                            <span style="font-size: 0.8rem; color: #aaa; margin-left: 10px;">(Clique para testar)</span>
+                        </h3>
+                        <div class="ad-list-container" id="ad-list">
+                            <!-- Anúncios serão adicionados via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <footer>
+            <p>Sistema Automático de Rádio com Anúncios &copy; 2026</p>
+            <p style="margin-top: 5px; font-size: 0.8rem;">
+                Anúncios em MP3 tocam a cada 10 minutos e a música retorna automaticamente após cada anúncio
+            </p>
+        </footer>
+    </div>
+    
+    <div class="notification" id="notification">
+        <i class="fas fa-bullhorn"></i> <span id="notification-text">Anúncio iniciado!</span>
+    </div>
+    
+    <!-- Players de áudio (um para música, outro para anúncio) -->
+    <audio id="music-player"></audio>
+    <audio id="ad-player"></audio>
+    
+    <script>
+        // Músicas de exemplo (URLs públicas)
+        const musicTracks = [
+            {
+                id: 1,
+                title: "CÉU AZUL",
+                artist: "NATANZINHO",
+                src: "24- CÉU AZUL (1).mp3",
+                duration: "3:15"
+            },
+
+  {
+                id: 1,
+                title: "AMOR PURO",
+                artist: "DJAVAN",
+                src: "Djavan - Um Amor Puro (Áudio Oficial)(MP3_160K).mp3",
+                duration: "3:15"
+            },
+
+
+            {
+                id: 2,
+                title: "PELA UNIMA VEZ",
+                artist: "MENOS É MAIS ",
+                src: "Grupo_Menos_Mais_NATTAN_Pela_ltima_Vez_muzzik.m4a",
+                duration: "4:02"
+            },
+            {
+                id: 3,
+                title: "TUBARÕES",
+                artist: "DIEGO & VICTOR HUGO",
+                src: "Diego_e_Victor_Hugo_Tubar_es_muzzik.m4a",
+                duration: "3:45"
+            },
+            {
+                id: 4,
+                title: "MINA DO CONDOMÍNIO",
+                artist: "SEU JORGE ",
+                src: "Mina_do_Mina_do_Condom_nio_muzzik.m4a",
+                duration: "3:30"
+            },
+            {
+                id: 5,
+                title: "ANUNCIAÇÃO",
+                artist: "ALCEU VALENCIA Mix",
+                src: "Anunciação(MP3_160K).mp3",
+                duration: "4:20"
+            }
+        ];
+
+        // ANÚNCIOS PERSONALIZADOS - COLE SEUS ANÚNCIOS AQUI
+        const advertisements = [
+            {
+                id: 1,
+                title: "Supermercado Preço Bom",
+                description: "Ofertas da semana com até 40% off",
+                src: "tzebu.mp3",  // SUBSTITUA pelo seu arquivo
+                duration: "0:35"
+            },
+            {
+                id: 2,
+                title: "TESTE",
+                description: "Todas as peças com garantia",
+                src: "tzebu.mp3",  // SUBSTITUA pelo seu arquivo
+                duration: "0:28"
+            },
+            {
+                id: 3,
+                title: "Farmácia Saúde Total",
+                description: "Entrega grátis para toda a cidade",
+                src: "TESTE 2",  // SUBSTITUA pelo seu arquivo
+                duration: "0:32"
+            },
+            {
+                id: 4,
+                title: "TESR",
+                description: "Almoço executivo por apenas R$ 25,90",
+                src: "tzebu.mp3",  // SUBSTITUA pelo seu arquivo
+                duration: "0:26"
+            }
+        ];
+
+        // Elementos DOM
+        const musicPlayer = document.getElementById('music-player');
+        const adPlayer = document.getElementById('ad-player');
+        const playPauseBtn = document.querySelector('.play-pause');
+        const prevBtn = document.querySelector('.prev-btn');
+        const nextBtn = document.querySelector('.next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressContainer = document.getElementById('progress-container');
+        const currentTimeDisplay = document.getElementById('current-time');
+        const totalTimeDisplay = document.getElementById('total-time');
+        const trackTitle = document.getElementById('track-title');
+        const trackArtist = document.getElementById('track-artist');
+        const playlistElement = document.getElementById('playlist');
+        const volumeSlider = document.getElementById('volume-slider');
+        const volumeIcon = document.getElementById('volume-icon');
+        const adTimer = document.getElementById('ad-timer');
+        const adStatus = document.getElementById('ad-status');
+        const testAdBtn = document.getElementById('test-ad-btn');
+        const skipAdBtn = document.getElementById('skip-ad-btn');
+        const stopAdsBtn = document.getElementById('stop-ads-btn');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+        const adList = document.getElementById('ad-list');
+
+        // Variáveis de estado
+        let currentTrackIndex = 0;
+        let isPlaying = false;
+        let isAdPlaying = false;
+        let adsEnabled = true;
+        let adInterval;
+        let adTimeout;
+        let adCountdown = 600; // 10 minutos em segundos (altere se quiser)
+        let musicPausedTime = 0; // Tempo onde a música pausou para o anúncio
+        let currentAdIndex = 0;
+
+        // Inicialização
+        function init() {
+            // Carregar a primeira música
+            loadTrack(currentTrackIndex);
+            
+            // Criar playlist de músicas
+            createPlaylist();
+            
+            // Criar lista de anúncios
+            createAdList();
+            
+            // Configurar temporizador de anúncios
+            setupAdTimer();
+            
+            // Configurar eventos
+            setupEventListeners();
+            
+            // Atualizar interface inicial
+            updateAdTimerDisplay();
+            
+            // Iniciar música automaticamente após 2 segundos
+            setTimeout(() => {
+                if (!isPlaying) {
+                    togglePlayPause();
+                }
+            }, 2000);
+        }
+
+        // Carregar uma faixa de música
+        function loadTrack(index) {
+            if (index < 0 || index >= musicTracks.length) return;
+            
+            currentTrackIndex = index;
+            const track = musicTracks[index];
+            
+            musicPlayer.src = track.src;
+            trackTitle.textContent = track.title;
+            trackArtist.textContent = track.artist;
+            
+            // Atualizar a playlist ativa
+            updateActivePlaylistItem();
+            
+            // Se estiver tocando e não for anúncio, reproduzir a nova faixa
+            if (isPlaying && !isAdPlaying) {
+                musicPlayer.play();
+            }
+            
+            // Resetar barra de progresso
+            progressBar.style.width = '0%';
+            currentTimeDisplay.textContent = '0:00';
+        }
+
+        // Criar elementos da playlist
+        function createPlaylist() {
+            playlistElement.innerHTML = '';
+            
+            musicTracks.forEach((track, index) => {
+                const playlistItem = document.createElement('div');
+                playlistItem.className = `playlist-item ${index === currentTrackIndex ? 'active' : ''}`;
+                playlistItem.innerHTML = `
+                    <i class="fas fa-music"></i>
+                    <div style="flex: 1;">
+                        <div class="track-title" style="font-size: 1rem;">${track.title}</div>
+                        <div class="track-artist" style="font-size: 0.8rem;">${track.artist} • ${track.duration}</div>
+                    </div>
+                `;
+                
+                playlistItem.addEventListener('click', () => {
+                    loadTrack(index);
+                    if (!isPlaying && !isAdPlaying) {
+                        playMusic();
+                    }
+                });
+                
+                playlistElement.appendChild(playlistItem);
+            });
+        }
+
+        // Criar lista de anúncios
+        function createAdList() {
+            adList.innerHTML = '';
+            
+            advertisements.forEach((ad, index) => {
+                const adItem = document.createElement('div');
+                adItem.className = `ad-item ${index === currentAdIndex ? 'active' : ''}`;
+                adItem.innerHTML = `
+                    <i class="fas fa-ad"></i>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 500;">${ad.title}</div>
+                        <div style="font-size: 0.8rem; color: #aaa; margin-top: 3px;">${ad.description} • ${ad.duration}</div>
+                    </div>
+                    <span class="ad-badge">Anúncio</span>
+                `;
+                
+                adItem.addEventListener('click', () => {
+                    // Testar este anúncio
+                    playAd(index);
+                });
+                
+                adList.appendChild(adItem);
+            });
+        }
+
+        // Atualizar item ativo na playlist
+        function updateActivePlaylistItem() {
+            const playlistItems = document.querySelectorAll('.playlist-item');
+            playlistItems.forEach((item, index) => {
+                if (index === currentTrackIndex) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // Atualizar anúncio ativo
+        function updateActiveAdItem() {
+            const adItems = document.querySelectorAll('.ad-item');
+            adItems.forEach((item, index) => {
+                if (index === currentAdIndex) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // Alternar entre play e pause
+        function togglePlayPause() {
+            if (isAdPlaying) {
+                // Se um anúncio estiver tocando, controlar o anúncio
+                if (adPlayer.paused) {
+                    adPlayer.play();
+                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                } else {
+                    adPlayer.pause();
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                }
+            } else {
+                // Controlar a música
+                if (isPlaying) {
+                    pauseMusic();
+                } else {
+                    playMusic();
+                }
+            }
+        }
+
+        // Reproduzir música
+        function playMusic() {
+            musicPlayer.play();
+            isPlaying = true;
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            playPauseBtn.title = "Pausar";
+        }
+
+        // Pausar música
+        function pauseMusic() {
+            musicPlayer.pause();
+            isPlaying = false;
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            playPauseBtn.title = "Reproduzir";
+        }
+
+        // Próxima música
+        function nextTrack() {
+            if (isAdPlaying) return; // Não permitir durante anúncio
+            
+            let nextIndex = currentTrackIndex + 1;
+            if (nextIndex >= musicTracks.length) {
+                nextIndex = 0;
+            }
+            loadTrack(nextIndex);
+            if (isPlaying) {
+                musicPlayer.play();
+            }
+        }
+
+        // Música anterior
+        function prevTrack() {
+            if (isAdPlaying) return; // Não permitir durante anúncio
+            
+            let prevIndex = currentTrackIndex - 1;
+            if (prevIndex < 0) {
+                prevIndex = musicTracks.length - 1;
+            }
+            loadTrack(prevIndex);
+            if (isPlaying) {
+                musicPlayer.play();
+            }
+        }
+
+        // Atualizar barra de progresso da música
+        function updateProgress() {
+            if (musicPlayer.duration && !isAdPlaying) {
+                const progressPercent = (musicPlayer.currentTime / musicPlayer.duration) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+                
+                // Atualizar tempo atual
+                currentTimeDisplay.textContent = formatTime(musicPlayer.currentTime);
+                totalTimeDisplay.textContent = formatTime(musicPlayer.duration);
+            }
+        }
+
+        // Definir progresso ao clicar na barra
+        function setProgress(e) {
+            if (isAdPlaying) return; // Não permitir durante anúncio
+            
+            const width = this.clientWidth;
+            const clickX = e.offsetX;
+            const duration = musicPlayer.duration;
+            
+            if (duration) {
+                musicPlayer.currentTime = (clickX / width) * duration;
+            }
+        }
+
+        // Formatar tempo (segundos para MM:SS)
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        // Configurar temporizador de anúncios
+        function setupAdTimer() {
+            // Limpar qualquer temporizador existente
+            clearInterval(adInterval);
+            clearTimeout(adTimeout);
+            
+            if (!adsEnabled) return;
+            
+            // Configurar contagem regressiva
+            adInterval = setInterval(() => {
+                if (isPlaying && !isAdPlaying && adsEnabled) {
+                    adCountdown--;
+                    updateAdTimerDisplay();
+                    
+                    // Se a contagem regressiva chegou a zero, tocar anúncio
+                    if (adCountdown <= 0) {
+                        playNextAd();
+                    }
+                }
+            }, 1000);
+        }
+
+        // Atualizar exibição do temporizador de anúncios
+        function updateAdTimerDisplay() {
+            const minutes = Math.floor(adCountdown / 60);
+            const seconds = adCountdown % 60;
+            adTimer.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        // Reproduzir próximo anúncio
+        function playNextAd() {
+            if (!adsEnabled) return;
+            
+            // Selecionar próximo anúncio (ciclar através da lista)
+            currentAdIndex = (currentAdIndex + 1) % advertisements.length;
+            playAd(currentAdIndex);
+        }
+
+        // Reproduzir anúncio específico
+        function playAd(adIndex) {
+            if (adIndex < 0 || adIndex >= advertisements.length) return;
+            
+            currentAdIndex = adIndex;
+            const ad = advertisements[adIndex];
+            
+            // Salvar o tempo atual da música
+            musicPausedTime = musicPlayer.currentTime;
+            
+            // Pausar a música
+            if (isPlaying) {
+                pauseMusic();
+            }
+            
+            // Configurar e reproduzir o anúncio
+            adPlayer.src = ad.src;
+            isAdPlaying = true;
+            
+            // Atualizar interface para modo anúncio
+            adStatus.textContent = `Tocando: ${ad.title}`;
+            adStatus.className = "ad-status ad-playing";
+            skipAdBtn.style.display = "block";
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            playPauseBtn.title = "Pausar anúncio";
+            
+            // Mostrar notificação
+            showNotification(`Anúncio: ${ad.title} - Música retornará automaticamente`);
+            
+            // Atualizar anúncio ativo na lista
+            updateActiveAdItem();
+            
+            // Reproduzir anúncio
+            adPlayer.play();
+            
+            // QUANDO O ANÚNCIO TERMINAR, A MÚSICA VOLTA AUTOMATICAMENTE
+            adPlayer.onended = function() {
+                finishAd();
+            };
+        }
+
+        // Finalizar anúncio e retomar música AUTOMATICAMENTE
+        function finishAd() {
+            isAdPlaying = false;
+            
+            // Resetar contador de anúncios para 10 minutos
+            adCountdown = 600; // Altere este valor para mudar o intervalo
+            updateAdTimerDisplay();
+            
+            // Atualizar interface para modo normal
+            adStatus.textContent = "Aguardando próximo anúncio";
+            adStatus.className = "ad-status ad-upcoming";
+            skipAdBtn.style.display = "none";
+            
+            // RETOMAR A MÚSICA DO PONTO ONDE PAROU - AUTOMATICAMENTE
+            musicPlayer.currentTime = musicPausedTime;
+            
+            // A MÚSICA VOLTA A TOCAR AUTOMATICAMENTE
+            playMusic();
+            
+            // Mostrar notificação
+            showNotification("Música retomada automaticamente");
+            
+            // Selecionar próximo anúncio para a próxima vez
+            currentAdIndex = (currentAdIndex + 1) % advertisements.length;
+            updateActiveAdItem();
+        }
+
+        // Pular anúncio atual
+        function skipAd() {
+            if (isAdPlaying) {
+                adPlayer.pause();
+                finishAd();
+                showNotification("Anúncio pulado - música retomada");
+            }
+        }
+
+        // Testar anúncio (forçar reprodução)
+        function testAd() {
+            // Resetar contador para testar imediatamente
+            adCountdown = 1;
+            updateAdTimerDisplay();
+            showNotification("Testando anúncio...");
+        }
+
+        // Ativar/desativar anúncios automáticos
+        function toggleAds() {
+            adsEnabled = !adsEnabled;
+            
+            if (adsEnabled) {
+                // Ativar anúncios
+                setupAdTimer();
+                stopAdsBtn.innerHTML = '<i class="fas fa-stop-circle"></i> Parar Anúncios';
+                stopAdsBtn.style.background = 'rgba(250, 152, 58, 0.5)';
+                showNotification("Anúncios automáticos ativados");
+            } else {
+                // Desativar anúncios
+                clearInterval(adInterval);
+                clearTimeout(adTimeout);
+                stopAdsBtn.innerHTML = '<i class="fas fa-play-circle"></i> Ativar Anúncios';
+                stopAdsBtn.style.background = 'rgba(46, 204, 113, 0.5)';
+                adTimer.textContent = "OFF";
+                adStatus.textContent = "Anúncios desativados";
+                adStatus.className = "ad-status";
+                showNotification("Anúncios automáticos desativados");
+            }
+        }
+
+        // Mostrar notificação
+        function showNotification(message) {
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Configurar ouvintes de eventos
+        function setupEventListeners() {
+            // Controles do player de música
+            playPauseBtn.addEventListener('click', togglePlayPause);
+            prevBtn.addEventListener('click', prevTrack);
+            nextBtn.addEventListener('click', nextTrack);
+            
+            // Eventos do player de música
+            musicPlayer.addEventListener('timeupdate', updateProgress);
+            musicPlayer.addEventListener('ended', nextTrack);
+            
+            // Barra de progresso
+            progressContainer.addEventListener('click', setProgress);
+            
+            // Controle de volume
+            volumeSlider.addEventListener('input', () => {
+                const volume = volumeSlider.value / 100;
+                musicPlayer.volume = volume;
+                adPlayer.volume = volume;
+                
+                // Atualizar ícone do volume
+                if (volume == 0) {
+                    volumeIcon.className = "fas fa-volume-mute";
+                } else if (volume < 0.5) {
+                    volumeIcon.className = "fas fa-volume-down";
+                } else {
+                    volumeIcon.className = "fas fa-volume-up";
+                }
+            });
+            
+            // Controles de anúncios
+            testAdBtn.addEventListener('click', testAd);
+            skipAdBtn.addEventListener('click', skipAd);
+            stopAdsBtn.addEventListener('click', toggleAds);
+        }
+
+        // Inicializar quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
